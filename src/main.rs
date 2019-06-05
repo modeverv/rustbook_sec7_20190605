@@ -61,17 +61,33 @@ fn main() {
     // 7-6 コピーセマンティクス
     sec7_6::m();
     // 7-7 借用 所有権を渡さずに値を貸し出す
-    let mut p1 = Parent(1, Child(11),Child(12));
+    let mut p1 = Parent(1, Child(11), Child(12));
     f77(&p1); // 不変の参照
     f77_2(&mut p1); //可変の参照
     println!("p1: {:?}", p1);
-
+    // 7-8 参照のライフタイムと借用規則
+    // NLLがRust2018editionで入って落ち着いてる印象
+    let mut map = HashMap::new();
+    map.insert('h', "Hello".to_string());
+    process_or_default('h', &mut map)
 }
 mod sec7_6;
 
 fn f77(p: &Parent) {
     println!("{:?}", p);
 }
-fn f77_2(p: &mut Parent){
+fn f77_2(p: &mut Parent) {
     p.0 *= 2;
 }
+
+use std::collections::HashMap;
+fn process_or_default(key: char, map: &mut HashMap<char, String>){
+    // get_mutは可変の参照を得る
+    match map.get_mut(&key) {
+        Some(value) => value.push_str(", world"),
+        None => {
+            map.insert(key, Default::default());
+        }
+    }
+}
+
