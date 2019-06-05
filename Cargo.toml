@@ -1,0 +1,7 @@
+[package]
+name = "rustbook_sec7_20190605"
+version = "0.1.0"
+authors = ["modeverv <modeverv@gmail.com>"]
+edition = "2018"
+
+[dependencies]
