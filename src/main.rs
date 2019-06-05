@@ -60,5 +60,18 @@ fn main() {
     // - move クロージャ
     // 7-6 コピーセマンティクス
     sec7_6::m();
+    // 7-7 借用 所有権を渡さずに値を貸し出す
+    let mut p1 = Parent(1, Child(11),Child(12));
+    f77(&p1); // 不変の参照
+    f77_2(&mut p1); //可変の参照
+    println!("p1: {:?}", p1);
+
 }
 mod sec7_6;
+
+fn f77(p: &Parent) {
+    println!("{:?}", p);
+}
+fn f77_2(p: &mut Parent){
+    p.0 *= 2;
+}
