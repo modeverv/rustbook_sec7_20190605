@@ -69,9 +69,12 @@ fn main() {
     // NLLがRust2018editionで入って落ち着いてる印象
     let mut map = HashMap::new();
     map.insert('h', "Hello".to_string());
-    process_or_default('h', &mut map)
+    process_or_default('h', &mut map);
+    // 7-9
+    sec7_9::sec7_9();
 }
 mod sec7_6;
+mod sec7_9;
 
 fn f77(p: &Parent) {
     println!("{:?}", p);
