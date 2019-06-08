@@ -72,9 +72,12 @@ fn main() {
     process_or_default('h', &mut map);
     // 7-9
     sec7_9::sec7_9();
+    // 7-10
+    sec7_10::sec7_10();
 }
 mod sec7_6;
 mod sec7_9;
+mod sec7_10;
 
 fn f77(p: &Parent) {
     println!("{:?}", p);
