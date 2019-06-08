@@ -56,8 +56,30 @@ impl<T: Default> ToyVec<T> {
 ・self.capacityが1以上のときは、allocate_in_heap(self.capacity()*2)で現在の2倍の長さのBox<[T]>を作成しself.elementsにセットする。既存の全要素を新しいBox<[T]>へムーブしたあと、古いBox<[T]>を破棄する
 */
     fn grow(&mut self) {
-
+        if self.capacity() == 0 {
+            self.elements = Self::allocate_in_heap(1);
+        } else {
+            let new_elements = Self::allocate_in_heap(self.capacity()* 2);
+            let old_elements = std::mem::replace(&mut self.elements, new_elements);
+            // 既存の全要素を新しい領域へムーブする
+            // Vec<T>のinto_iter(self)なら要素の所有権が得られる
+            for(i,elem) in old_elements.into_vec().into_iter().enumerate() {
+                self.elements[i] = elem;
+            }
+        }
     }
+
+    pub fn pop(&mut self) -> Option<T> {
+        if self.len == 0 {
+            None
+        } else {
+            self.len -= 1;
+            // let elem = self.elements[self.len];
+            let elem = std::mem::replace(&mut self.elements[self.len], Default::default());
+            Some(elem)
+        }
+    }
+    
 }
 /*
 やべぇ
@@ -76,4 +98,9 @@ pub fn sec7_9(){
     v.push("Budgeringer".to_string());
     let e = v.get(1);
     assert_eq!(e, Some(&"Budgeringer".to_string()));
+    let mut v = ToyVec::new();
+    v.push(100);
+    let e = v.get(0);
+    //v.push(200);
+    assert_eq!(e,Some(&100));
 }
