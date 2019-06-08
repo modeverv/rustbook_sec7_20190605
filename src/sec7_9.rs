@@ -21,10 +21,10 @@ impl<T: Default> ToyVec<T> {
             .collect::<Vec<_>>()
             .into_boxed_slice()
     }
-/*
-戻り値のusize型はCopyトレイトを実装していますので、所有権のムーブではなく、値がコピーされます。
-=> 実装してなかったらムーブってこと。しんどいね。
-*/
+    /*
+    戻り値のusize型はCopyトレイトを実装していますので、所有権のムーブではなく、値がコピーされます。
+    => 実装してなかったらムーブってこと。しんどいね。
+    */
     pub fn len(&self) -> usize {
         self.len
     }
@@ -79,8 +79,38 @@ impl<T: Default> ToyVec<T> {
             Some(elem)
         }
     }
-    
+
+    pub fn iter<'vec>(&'vec self) -> Iter<'vec, T> {
+        Iter {
+            elements: &self.elements,
+            len: self.len,
+            pos: 0,
+        }
+    }
+
 }
+
+// ライフタイム指定により、このイテレータ自身またはnext()で得た&'vec T型の値が
+// 生存している間はToyVecは変更できない
+pub struct Iter<'vec, T> {
+    elements: &'vec Box<[T]>,
+    len: usize,
+    pos: usize,
+}
+
+impl<'vec, T> Iterator for Iter<'vec, T> {
+    type Item = &'vec T;
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.pos >= self.len {
+            None
+        } else {
+            let res = Some(&self.elements[self.pos]);
+            self.pos += 1;
+            res
+        }
+    }
+}
+
 /*
 やべぇ
 static I0:i32 = 42; //static変数。'staticスコープを持つ
@@ -91,6 +121,13 @@ s0=s1; //文字列リテラルへの参照は'staticライフタイムを持つ
 s0=&s2;//コンパイルエラー。String型から&'staticstrは作れない
 //→error[E0597]:`s2`does not live long enough
 */
+impl<'vec, T: Default> IntoIterator for &'vec ToyVec<T> {
+    type Item = &'vec T;
+    type IntoIter = Iter<'vec, T>;
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
 
 pub fn sec7_9(){
     let mut v = ToyVec::new();
@@ -98,9 +135,22 @@ pub fn sec7_9(){
     v.push("Budgeringer".to_string());
     let e = v.get(1);
     assert_eq!(e, Some(&"Budgeringer".to_string()));
+    /*
     let mut v = ToyVec::new();
     v.push(100);
     let e = v.get(0);
     //v.push(200);
     assert_eq!(e,Some(&100));
+    */
+    let mut iter = v.iter();
+    // v.push("Hiii".to_string());
+    assert_eq!(iter.next(),Some(&"Java Finch".to_string()));
+    v.push("Canary".to_string());
+    let mut v = ToyVec::new();
+    v.push("Hello, ");
+    v.push("World!\n");
+    for msg in &v {
+        print!("{} ", msg);
+    }
+
 }
